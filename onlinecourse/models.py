@@ -109,6 +109,9 @@ class Question(models.Model):
     content = models.CharField(max_length=200)
     grade = models.IntegerField(default=1)
 
+    def __str__(self):
+        return self.content
+
     def is_get_score(self, selected_ids):
         all_answers = self.choice_set.filter(is_correct=True).count()
         selected_correct = self.choice_set.filter(
@@ -125,6 +128,9 @@ class Choice(models.Model):
     content = models.CharField(max_length=200)
     is_correct = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.content
+
 
 # Submission model
 class Submission(models.Model):
@@ -133,3 +139,6 @@ class Submission(models.Model):
         on_delete=models.CASCADE
     )
     choices = models.ManyToManyField(Choice)
+
+    def __str__(self):
+        return f"Submission {self.pk}"
