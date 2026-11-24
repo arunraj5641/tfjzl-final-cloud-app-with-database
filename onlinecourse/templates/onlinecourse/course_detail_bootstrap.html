@@ -32,7 +32,7 @@
                             <button class="btn btn-primary" type="submit">Login</button>
                             <a class="btn btn-link" href="{% url 'onlinecourse:registration' %}">Sign Up</a>
                         </div>
-                    </form>
+                </form>
                 </li>
                 {% endif %}
             </ul>
@@ -63,7 +63,7 @@
             </button>
 
             <div id="exam" class="collapse mt-3">
-                <form>
+                <form action="{% url 'onlinecourse:submit' course.id %}" method="post">
                     {% csrf_token %}
 
                     {% for question in course.question_set.all %}
@@ -96,6 +96,10 @@
                     {% empty %}
                         <p>No exam questions are available yet.</p>
                     {% endfor %}
+
+                    <button type="submit" class="btn btn-success mt-3">
+                        Submit Exam
+                    </button>
                 </form>
             </div>
         {% endif %}
