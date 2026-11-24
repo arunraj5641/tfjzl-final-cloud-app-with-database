@@ -3,88 +3,129 @@
 <head>
     <meta charset="UTF-8">
     {% load static %}
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>Exam Results - {{ course.name }}</title>
 </head>
-<body>
+<body class="bg-light">
 
-<nav class="navbar navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{% url 'onlinecourse:index' %}">Home</a>
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand font-weight-bold"
+           href="{% url 'onlinecourse:index' %}">Online Course</a>
 
-        <ul class="nav navbar-nav navbar-right">
-            {% if user.is_authenticated %}
-            <li>
-                <a class="btn btn-link" href="#">
-                    {{ user.first_name }} ({{ user.username }})
-                </a>
-                <a class="btn btn-link" href="{% url 'onlinecourse:logout' %}">
-                    Logout
-                </a>
-            </li>
-            {% endif %}
-        </ul>
+        {% if user.is_authenticated %}
+        <div class="ml-auto">
+            <span class="navbar-text mr-3">
+                {{ user.first_name }} ({{ user.username }})
+            </span>
+            <a class="btn btn-outline-secondary btn-sm"
+               href="{% url 'onlinecourse:logout' %}">Logout</a>
+        </div>
+        {% endif %}
     </div>
 </nav>
 
-<div class="container mt-4">
-    <h2>{{ course.name }} - Exam Results</h2>
+<div class="container py-4">
+
+    <div class="text-center mb-4">
+        <h2>{{ course.name }}</h2>
+        <p class="text-muted">Exam Results</p>
+    </div>
 
     {% if grade > 80 %}
-    <div class="alert alert-success">
-        <h4>Congratulations! You passed the exam.</h4>
+    <div class="card border-success shadow-sm mb-4">
+        <div class="card-body text-center">
+            <h3 class="text-success">Congratulations! You passed the exam.</h3>
+            <p class="lead mb-2">Well done on completing the assessment!</p>
     {% else %}
-    <div class="alert alert-danger">
-        <h4>Sorry! You did not pass the exam.</h4>
+    <div class="card border-danger shadow-sm mb-4">
+        <div class="card-body text-center">
+            <h3 class="text-danger">You did not pass the exam.</h3>
+            <p class="lead mb-2">Review your answers and try again.</p>
     {% endif %}
 
-        <p>Score: {{ earned_grade }} / {{ total_grade }}</p>
-        <p>Percentage: {{ grade|floatformat:1 }}%</p>
+            <h4 class="mt-3">
+                Score: {{ earned_grade }} / {{ total_grade }}
+            </h4>
+            <h2 class="font-weight-bold">{{ grade|floatformat:1 }}%</h2>
+            <p class="text-muted mb-0">Passing score: 80%</p>
+        </div>
     </div>
 
     {% if grade <= 80 %}
-    <a class="btn btn-primary mb-3"
-       href="{% url 'onlinecourse:course_details' course.id %}">
-        Re-test
-    </a>
+    <div class="text-center mb-4">
+        <a class="btn btn-primary"
+           href="{% url 'onlinecourse:course_details' course.id %}">
+            Retake Exam
+        </a>
+    </div>
     {% endif %}
 
-    <h4 class="mt-3">Question-by-question results</h4>
+    <h4 class="mb-3">Detailed Exam Results</h4>
 
     {% for result in exam_results %}
-    <div class="card mt-3">
-        <div class="card-header">
-            <strong>Question {{ forloop.counter }}:</strong>
-            {{ result.question.content }}
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+            <strong>
+                Question {{ forloop.counter }}: {{ result.question.content }}
+            </strong>
 
             {% if result.is_correct %}
-                <span class="badge badge-success">Correct</span>
+            <span class="badge badge-success">Correct</span>
             {% else %}
-                <span class="badge badge-danger">Incorrect</span>
+            <span class="badge badge-danger">Incorrect</span>
             {% endif %}
         </div>
 
         <div class="card-body">
-            <p><strong>Selected answers:</strong></p>
+
+            <p class="font-weight-bold mb-2">Your selected answers:</p>
 
             {% for choice in result.selected_choices %}
-                <p>{{ choice.content }}</p>
+                {% if choice.is_correct %}
+                <div class="alert alert-success py-2 mb-2">
+                    {{ choice.content }}
+                    <span class="badge badge-success ml-2">Correct choice</span>
+                </div>
+                {% else %}
+                <div class="alert alert-danger py-2 mb-2">
+                    {{ choice.content }}
+                    <span class="badge badge-danger ml-2">Incorrect choice</span>
+                </div>
+                {% endif %}
             {% empty %}
-                <p>No answer selected.</p>
+                <p class="text-muted">You did not select an answer.</p>
             {% endfor %}
 
-            <p><strong>Correct answers:</strong></p>
+            <p class="font-weight-bold mt-3 mb-2">Correct answer(s):</p>
 
             {% for choice in result.correct_choices %}
-                <p>{{ choice.content }}</p>
+            <div class="alert alert-success py-2 mb-2">
+                {{ choice.content }}
+            </div>
+            {% empty %}
+            <p class="text-muted">No correct answer configured.</p>
             {% endfor %}
 
-            <p><strong>Question grade:</strong> {{ result.grade }}</p>
+            <p class="text-muted mb-0 mt-3">
+                Question score: {{ result.grade }} marks
+            </p>
         </div>
     </div>
     {% empty %}
-        <p>No questions were found for this course.</p>
+    <div class="alert alert-info">
+        No questions were found for this course.
+    </div>
     {% endfor %}
+
+    <div class="text-center mt-4 mb-3">
+        <a href="{% url 'onlinecourse:index' %}"
+           class="btn btn-outline-secondary">
+            Back to Courses
+        </a>
+    </div>
+
 </div>
 
 </body>
